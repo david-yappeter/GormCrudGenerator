@@ -3,68 +3,160 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"strings"
+
+	"github.com/iancoleman/strcase"
 )
 
-// type Student struct {
-// 	Fname  string `gorm:"type:varchar(255);not null"`
-// 	Lname  string `gorm:"type:varchar(255);not null"`
-// 	City   string `gorm:"type:varchar(255);not null"`
-// 	Mobile int    `gorm:"type:int;not null"`
-// }
-
-// func main() {
-// 	// s := Student{}
-// 	// v := reflect.ValueOf(s)
-// 	// typeOfS := v.Type()
-
-// 	// for i := 0; i < v.NumField(); i++ {
-// 	// 	fmt.Printf("Field: %s\tType: %s\tValue: %v\n", typeOfS.Field(i).Name, typeOfS.Field(i).Type, v.Field(i).Interface())
-// 	// }
-
-// 	// fmt.Println(typeOfS.Field(0).Anonymous)
-// 	// fmt.Println(typeOfS.Field(0).Index)
-// 	// fmt.Println(typeOfS.Field(0).Offset)
-// 	// fmt.Println(typeOfS.Field(0).PkgPath)
-// 	// fmt.Println(typeOfS.Field(0).Tag)
-
-// 	var temp interface{} = {
-// 		Student{},
-// 	}
-
-// }
-
+//Student Student
 type Student struct {
-	ID   string
-	Name string
+	ID         string `json:"id"`
+	Name       string `gorm:"type:varchar(255);not null"`
+	CreatedAt  string
+	UpdatedAt  string
+	EmployeeID int
 }
 
 func main() {
-	item := Student{ID: "10", Name: "david"}
-	doSomethinWithThisParam(&item)
-	fmt.Printf("%+v", item)
+	item := Student{}
+	gen := GenerateCRUD(&item)
+
+	fmt.Println(gen)
 }
 
-// func doSomethinWithThisParam(item *interface{}) {
-// 	*item = &Student{
-// 		ID:   "124",
-// 		Name: "Iman Tumorang",
-// 	}
-// }
+//GenerateCRUD g
+func GenerateCRUD(item interface{}) string {
 
-func doSomethinWithThisParam(item interface{}) {
 	origin := reflect.ValueOf(item)
 
-	tempLen := origin.Elem()
+	// fmt.Println(reflect.TypeOf(item))
+	// fmt.Printf("%s\n", origin.Type())
 
-	fmt.Println(tempLen.Type().Field(0).Name)
-	// for i := 0; i < tempLen; i++ {
-	// 	fmt.Println(origin.Field(i).Interface())
-	// }
-	// origin = &Student{
-	// 	ID:   "124",
-	// 	Name: "Iman Tumorang",
-	// }
-	// item = origin
+	elem := origin.Elem()
 
-	fmt.Println(origin)
+	temp := strings.Split(fmt.Sprintf("%s", origin.Type()), ".")
+
+	structName := temp[len(temp)-1]
+	lowerStruct := strcase.ToLowerCamel(structName)
+	dbName := strcase.ToSnake(structName)
+
+	var attributes []string
+
+	attributeLen := elem.NumField()
+
+	for i := 0; i < attributeLen; i++ {
+		attributes = append(attributes, elem.Type().Field(i).Name)
+	}
+
+	for _, val := range attributes {
+		fmt.Println(val)
+	}
+
+	generated := ""
+
+	create := `
+
+` +
+		structName + `Create(ctx context.Context, input model.New` + structName + `) (*model.` + structName + `, error)` +
+		`			db := config.ConnectGorm()
+	defer db.Close()
+
+	` +
+		lowerStruct + ` := model.` + structName + `{` + "\n"
+
+	flag := true
+	for _, val := range attributes {
+		if flag {
+			flag = false
+			continue
+		}
+		create += `		` + val + `: ` + `input.` + val + ",\n"
+	}
+
+	create += `	}
+	
+	err := db.Table("` + dbName + `").Create(&` + lowerStruct + `).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &` + lowerStruct + `, nil 
+}`
+
+	update := structName + `Update(ctx context.Context, input model.Update` + structName + `) (*model.` + structName + `, error)` +
+		`			db := config.ConnectGorm()
+	defer db.Close()
+
+	` +
+		lowerStruct + ` := model.` + structName + `{` + "\n"
+
+	for _, val := range attributes {
+		update += `		` + val + `: ` + `input.` + val + ",\n"
+	}
+
+	update += `	}
+
+	err := db.Table("` + dbName + `").Where("id = ?", input.ID).Updates(&` + lowerStruct + `).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &` + lowerStruct + `, nil
+}`
+
+	delete := structName + `Delete(ctx context.Context, id int) (string, error)
+	db := config.ConnectGorm()
+	defer db.Close()
+
+	err := db.Table("` + dbName + `").Where("id = ?", id).Delete(&model.` + structName + `{}).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return "Fail", err
+	}
+
+	return "Success", nil
+}`
+
+	readOne := structName + `GetByID(ctx context.Context, id int) (*model.` + structName + `, error)` +
+		`			
+	db := config.ConnectGorm()
+	defer db.Close()
+
+	var ` + lowerStruct + ` model.` + structName + `
+
+	err := db.Table("` + dbName + `").Where("id = ?", id).First(&` + lowerStruct + `).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &` + lowerStruct + `, nil
+}`
+
+	readAll := structName + `GetAll(ctx context.Context) ([]*model.` + structName + `, error)` +
+		`			
+	db := config.ConnectGorm()
+	defer db.Close()
+
+	var ` + lowerStruct + ` []*model.` + structName + `
+
+	err := db.Table("` + dbName + `").Find(&` + lowerStruct + `).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return ` + lowerStruct + `, nil
+}`
+
+	generated += create + "\n\n" + update + "\n\n" + delete + "\n\n" + readOne + "\n\n" + readAll
+
+	return generated
 }
