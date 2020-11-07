@@ -8,17 +8,22 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-//Student Student
-type Student struct {
-	ID         string `json:"id"`
-	Name       string `gorm:"type:varchar(255);not null"`
-	CreatedAt  string
-	UpdatedAt  string
-	EmployeeID int
+//CashFlowLines s
+type CashFlowLines struct {
+	ID             int     `gorm:"type:int AUTO_INCREMENT;not null"`
+	Date           string  `gorm:"type:datetime;not null"`
+	Information    string  `gorm:"type:varchar(255);not null"`
+	EntryType      int     `gorm:"type:int;not null"`
+	Amount         int     `gorm:"type:int;not null"`
+	EndingBalance  int     `gorm:"type:int;not null"`
+	CreatedAt      *string `gorm:"type:timestamp;not null"`
+	UpdatedAt      *string `gorm:"type:timestamp;not null"`
+	ReceiptsID     *int    `gorm:"type:int;null;default:NULL"`
+	CashAccountID  int     `gorm:"type:int;not null"`
+	TransactionsID int     `gorm:"type:int;not null"`
 }
-
 func main() {
-	item := Student{}
+	item := CashFlowLines{}
 	gen := GenerateCRUD(&item)
 
 	fmt.Println(gen)
@@ -47,11 +52,7 @@ func GenerateCRUD(item interface{}) string {
 	for i := 0; i < attributeLen; i++ {
 		attributes = append(attributes, elem.Type().Field(i).Name)
 	}
-
-	for _, val := range attributes {
-		fmt.Println(val)
-	}
-
+	
 	generated := ""
 
 	create := `
