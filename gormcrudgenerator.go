@@ -1,10 +1,11 @@
-package main
+package gormcrudgenerator
 
 import (
 	"myapp/gormgenerator"
 )
 
-func main() {
+//GenerateService Generate
+func GenerateService() {
 	// gormgenerator.GormGenerator()
 	goModName := gormgenerator.GetGoModName()
 
