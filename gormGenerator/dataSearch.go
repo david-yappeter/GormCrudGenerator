@@ -31,7 +31,7 @@ func GetStructAndAttribute() ([]string, map[string][]string) {
 	for fileScanner.Scan() {
 		temp := strings.Split(fileScanner.Text(), " ")
 
-		if len(temp) >= 2 {
+		if len(temp) > 2 {
 			if temp[0] == "type" && temp[2] == "struct" {
 				listStruct = append(listStruct, temp[1])
 

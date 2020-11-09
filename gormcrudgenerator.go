@@ -1,7 +1,7 @@
 package gormcrudgenerator
 
 import (
-	"github.com/davidyap2002/GormCrudGenerator/gormgenerator"
+	"myapp/gormgenerator"
 )
 
 //GenerateService Generate
