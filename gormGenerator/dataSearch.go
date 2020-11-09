@@ -12,11 +12,19 @@ func GetGoModName() string {
 	defer fileHandle.Close()
 	fileScanner := bufio.NewScanner(fileHandle)
 
-	fileScanner.Scan()
+	var temp string
 
-	goModName := strings.Split(fileScanner.Text(), " ")[1]
+	for fileScanner.Scan() {
+		goModName := strings.Split(fileScanner.Text(), " ")
 
-	return goModName
+		if len(goModName) > 1 {
+			if goModName[0] == "module" {
+				temp = goModName[1]
+			}
+		}
+	}
+
+	return temp
 }
 
 //GetStructAndAttribute Get Structs and Its Attributes
