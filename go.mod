@@ -1,4 +1,4 @@
-module myapp
+module github.com/davidyap2002/GormCrudGenerator
 
 go 1.15
 
