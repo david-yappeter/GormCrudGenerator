@@ -1,8 +1,12 @@
-package gormcrudgenerator
+package main
 
 import (
 	"github.com/davidyap2002/GormCrudGenerator/gormgenerator"
 )
+
+func main() {
+	GenerateService()
+}
 
 //GenerateService Generate
 func GenerateService() {
