@@ -4,6 +4,10 @@ import (
 	"github.com/davidyap2002/GormCrudGenerator/gormgenerator"
 )
 
+// func main(){
+// 	GenerateService()
+// }
+
 //GenerateService Generate
 func GenerateService() {
 	// gormgenerator.GormGenerator()

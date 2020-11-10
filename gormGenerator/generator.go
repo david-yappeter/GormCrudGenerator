@@ -27,14 +27,14 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 
 	f.Empty()
 
-	//Create
+	//CREATE
 	f.Comment("//" + structName + "Create Create")
 	f.Func().Id(structName+"Create").Params(
 		jen.Id("ctx").Qual("context", "Context"),
 		jen.Id("input").Qual(goModName+"/graph/model", "New"+structName),
 	).Params(jen.Id("*").Qual(goModName+"/graph/model", structName), jen.Error()).
 		Block(
-			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectDB").Call(),
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
 			jen.Defer().Id("db").Dot("Close").Call(),
 
 			jen.Empty(),
@@ -68,13 +68,64 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 			jen.Return(jen.Id("&"+camelStructName), jen.Nil()),
 		)
 
+	//CREATE BATCH
+	f.Comment("//" + structName + "CreateBatch Create Batch")
+	f.Func().Id(structName+"CreateBatch").Params(
+		jen.Id("ctx").Qual("context", "Context"),
+		jen.Id("input").Id("[]*").Qual(goModName+"/graph/model", "New"+structName),
+	).Params(jen.Id("[]*").Qual(goModName+"/graph/model", structName), jen.Error()).
+		Block(
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
+			jen.Defer().Id("db").Dot("Close").Call(),
+
+			jen.Empty(),
+
+			jen.Var().Id(camelStructName+"Batch").Id("[]*").Qual(goModName+"/graph/model", structName),
+
+			jen.Empty(),
+
+			jen.For(
+				jen.Id("_,").Id("val").Op(":=").Range().Id("input"),
+			).Block(
+				jen.Id(camelStructName).Op(":=").Qual(goModName+"/graph/model", structName).Values(
+					jen.DictFunc(func(d jen.Dict) {
+						for _, val := range attributeMap[structName] {
+							if val == "ID" {
+								continue
+							}
+							d[jen.Id(val)] = jen.Id("input").Dot(val)
+						}
+					}),
+				),
+				jen.Empty(),
+
+				jen.Id("err").Op(":=").Id("db").Dot("Table").Params(jen.Lit(snakeStructName)).Dot("Create").Params(jen.Id("&"+camelStructName)).Dot("Error"),
+
+				jen.Empty(),
+
+				jen.If(
+					jen.Id("err").Op("!=").Nil(),
+				).Block(
+					jen.Qual("fmt", "Println").Call(jen.Id("err")),
+					jen.Return(jen.Nil(), jen.Id("err")),
+				),
+
+				jen.Id(camelStructName+"Batch").Op("=").Append(jen.Id(camelStructName+"Batch"), jen.Id("&"+camelStructName)),
+			),
+
+			jen.Empty(),
+
+			jen.Return(jen.Id(camelStructName+"Batch"), jen.Nil()),
+		)
+
+	//UPDATE
 	f.Comment("//" + structName + "Update Update")
 	f.Func().Id(structName+"Update").Params(
 		jen.Id("ctx").Qual("context", "Context"),
 		jen.Id("input").Qual(goModName+"/graph/model", "Update"+structName),
 	).Params(jen.Id("*").Qual(goModName+"/graph/model", structName), jen.Error()).
 		Block(
-			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectDB").Call(),
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
 			jen.Defer().Id("db").Dot("Close").Call(),
 
 			jen.Empty(),
@@ -105,13 +156,14 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 			jen.Return(jen.Id("&"+camelStructName), jen.Nil()),
 		)
 
+	//DELETE
 	f.Comment("//" + structName + "Delete Delete")
 	f.Func().Id(structName+"Delete").Params(
 		jen.Id("ctx").Qual("context", "Context"),
 		jen.Id("id").Int(),
 	).Params(jen.String(), jen.Error()).
 		Block(
-			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectDB").Call(),
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
 			jen.Defer().Id("db").Dot("Close").Call(),
 
 			jen.Empty(),
@@ -132,13 +184,14 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 			jen.Return(jen.Lit("Success"), jen.Nil()),
 		)
 
+	//GET BY ID
 	f.Comment("//" + structName + "GetByID Get By ID")
 	f.Func().Id(structName+"GetByID").Params(
 		jen.Id("ctx").Qual("context", "Context"),
 		jen.Id("id").Int(),
 	).Params(jen.Id("*").Qual(goModName+"/graph/model", structName), jen.Error()).
 		Block(
-			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectDB").Call(),
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
 			jen.Defer().Id("db").Dot("Close").Call(),
 
 			jen.Empty(),
@@ -163,13 +216,14 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 			jen.Return(jen.Id("&"+camelStructName), jen.Nil()),
 		)
 
+	//GET ALL
 	f.Comment("//" + structName + "GetAll GetAll")
 	f.Func().Id(structName+"GetAll").Params(
 		jen.Id("ctx").Qual("context", "Context"),
 		jen.Id("id").Int(),
 	).Params(jen.Id("[]*").Qual(goModName+"/graph/model", structName), jen.Error()).
 		Block(
-			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectDB").Call(),
+			jen.Id("db").Op(":=").Qual(goModName+"/config", "ConnectGorm").Call(),
 			jen.Defer().Id("db").Dot("Close").Call(),
 
 			jen.Empty(),
