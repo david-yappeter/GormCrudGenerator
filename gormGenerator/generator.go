@@ -3,6 +3,7 @@ package gormgenerator
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	//Comment m
 	"github.com/dave/jennifer/jen"
@@ -42,7 +43,7 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 			jen.Id(camelStructName).Op(":=").Qual(goModName+"/graph/model", structName).Values(
 				jen.DictFunc(func(d jen.Dict) {
 					for _, val := range attributeMap[structName] {
-						if val == "ID" {
+						if strings.Trim(val, "\t") == "ID" {
 							continue
 						}
 						d[jen.Id(val)] = jen.Id("input").Dot(val)
@@ -90,10 +91,10 @@ func GormGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 				jen.Id(camelStructName).Op(":=").Qual(goModName+"/graph/model", structName).Values(
 					jen.DictFunc(func(d jen.Dict) {
 						for _, val := range attributeMap[structName] {
-							if val == "ID" {
+							if strings.Trim(val, "\t") == "ID" {
 								continue
 							}
-							d[jen.Id(val)] = jen.Id("input").Dot(val)
+							d[jen.Id(val)] = jen.Id("val").Dot(val)
 						}
 					}),
 				),
