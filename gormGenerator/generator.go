@@ -479,7 +479,7 @@ func CrudGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 
 			jen.Empty(),
 
-			jen.Id("err").Op(":=").Id("db").Dot("Table").Params(jen.Lit(snakeStructName)).Dot("Create").Params(jen.Id("&"+camelStructName)).Dot("Error"),
+			jen.Id("err").Op(":=").Id("db").Dot("Table").Params(jen.Lit(snakeStructName)).Dot("Create").Params(jen.Id("&"+camelStructName+"Batch")).Dot("Error"),
 
 			jen.Empty(),
 
@@ -721,6 +721,10 @@ func CrudGenerator(nameGoMod string, nameStruct string, attribute map[string][]s
 
 			jen.Qual(goModName+"/tools", "QueryMaker").Call(
 				jen.Id("query"),
+				jen.Id("limit"),
+				jen.Id("page"),
+				jen.Id("ascending"),
+				jen.Id("sortBy"),
 				jen.Id("filter"),
 			),
 
