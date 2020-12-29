@@ -261,7 +261,20 @@ func GormLogGenerator() {
 	f.Empty()
 
 	//CREATE
-	f.Comment("//InitLog Database Connection Log Config")
+
+	f.Comment("//InitConfig Initialize Config")
+	f.Func().Id("InitConfig").Params().Params(jen.Id("*").Qual("gorm.io/gorm", "Config")).
+		Block(
+			jen.Return(jen.Id("&").Qual("gorm.io/gorm", "Config").Values(
+				jen.DictFunc(func(d jen.Dict) {
+					d[jen.Id("Logger")] = jen.Id("InitLog").Call()
+					d[jen.Id("NamingStrategy")] = jen.Id("InitNamingStrategy").Call()
+				},
+				),
+			)),
+		)
+
+	f.Comment("//InitLog Connection Log Configuration")
 	f.Func().Id("InitLog").Params().Params(jen.Qual("gorm.io/gorm/logger", "Interface")).
 		Block(
 
@@ -285,6 +298,20 @@ func GormLogGenerator() {
 			),
 
 			jen.Return(jen.Id("newLogger")),
+		)
+
+	f.Comment("//InitNamingStrategy Init NamingStrategy")
+	f.Func().Id("InitNamingStrategy").Params().Params(jen.Id("*").Qual("gorm.io/gorm/schema", "NamingStrategy")).
+		Block(
+			jen.Return(
+				jen.Id("&").Qual("gorm.io/gorm/schema", "NamingStrategy").Values(
+					jen.DictFunc(func(d jen.Dict) {
+						d[jen.Id("TablePrefix")] = jen.Lit("")
+						d[jen.Id("SingularTable")] = jen.True()
+					},
+					),
+				),
+			),
 		)
 
 	// END
@@ -351,12 +378,7 @@ func GormConnectionGenerator(goModName string) {
 
 			jen.Empty(),
 
-			jen.Id("db").Op(",").Err().Op(":=").Qual("gorm.io/gorm", "Open").Params(jen.Qual("gorm.io/driver/mysql", "Open").Params(jen.Id("databaseConfig")), jen.Id("&").Qual("gorm.io/gorm", "Config").Values(
-				jen.DictFunc(func(d jen.Dict) {
-					d[jen.Id("Logger")] = jen.Qual(goModName+"/logger", "InitLog").Call()
-				}),
-			),
-			),
+			jen.Id("db").Op(",").Err().Op(":=").Qual("gorm.io/gorm", "Open").Params(jen.Qual("gorm.io/driver/mysql", "Open").Params(jen.Id("databaseConfig")), jen.Qual(goModName+"/logger", "InitConfig").Call()),
 
 			jen.Empty(),
 
