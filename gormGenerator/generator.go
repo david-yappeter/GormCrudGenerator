@@ -324,7 +324,7 @@ func GormLogGenerator() {
 }
 
 //GormConnectionGenerator Gorm Connection Gorm V2
-func GormConnectionGenerator(goModName string) {
+func GormConnectionGenerator(goModName string, connectionType string) {
 
 	err := os.Mkdir("./config", os.ModeDir)
 
@@ -364,35 +364,74 @@ func GormConnectionGenerator(goModName string) {
 	f.Empty()
 
 	//CREATE
-	f.Comment("//ConnectGorm Database Connection to Gorm V2")
-	f.Func().Id("ConnectGorm").Params().Params(jen.Id("*").Qual("gorm.io/gorm", "DB")).
-		Block(
-			jen.Id("databaseConfig").Op(":=").Qual("fmt", "Sprintf").Call(
-				jen.Lit("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true"),
-				jen.Qual("os", "Getenv").Call(jen.Lit("DB_USER")),
-				jen.Qual("os", "Getenv").Call(jen.Lit("DB_PASSWORD")),
-				jen.Qual("os", "Getenv").Call(jen.Lit("DB_HOST")),
-				jen.Qual("os", "Getenv").Call(jen.Lit("DB_PORT")),
-				jen.Qual("os", "Getenv").Call(jen.Lit("DB_DATABASE")),
-			),
+	if connectionType == "mysql" {
+		f.Comment("//ConnectGorm Database Connection to Gorm V2")
+		f.Func().Id("ConnectGorm").Params().Params(jen.Id("*").Qual("gorm.io/gorm", "DB")).
+			Block(
+				jen.Id("databaseConfig").Op(":=").Qual("fmt", "Sprintf").Call(
+					jen.Lit("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true"),
+					jen.Qual("os", "Getenv").Call(jen.Lit("DB_USER")),
+					jen.Qual("os", "Getenv").Call(jen.Lit("DB_PASSWORD")),
+					jen.Qual("os", "Getenv").Call(jen.Lit("DB_HOST")),
+					jen.Qual("os", "Getenv").Call(jen.Lit("DB_PORT")),
+					jen.Qual("os", "Getenv").Call(jen.Lit("DB_DATABASE")),
+				),
 
-			jen.Empty(),
+				jen.Empty(),
 
-			jen.Id("db").Op(",").Err().Op(":=").Qual("gorm.io/gorm", "Open").Params(jen.Qual("gorm.io/driver/mysql", "Open").Params(jen.Id("databaseConfig")), jen.Qual(goModName+"/logger", "InitConfig").Call()),
+				jen.Id("db").Op(",").Err().Op(":=").Qual("gorm.io/gorm", "Open").Params(jen.Qual("gorm.io/driver/mysql", "Open").Params(jen.Id("databaseConfig")), jen.Qual(goModName+"/logger", "InitConfig").Call()),
 
-			jen.Empty(),
+				jen.Empty(),
 
-			jen.If(
-				jen.Err().Op("!=").Nil(),
-			).Block(
-				jen.Qual("fmt", "Println").Call(jen.Err()),
-				jen.Panic(jen.Lit("Fail To Connect Database")),
-			),
+				jen.If(
+					jen.Err().Op("!=").Nil(),
+				).Block(
+					jen.Qual("fmt", "Println").Call(jen.Err()),
+					jen.Panic(jen.Lit("Fail To Connect Database")),
+				),
 
-			jen.Empty(),
+				jen.Empty(),
 
-			jen.Return(jen.Id("db")),
-		)
+				jen.Return(jen.Id("db")),
+			)
+	} else if connectionType == "postgres" {
+		f.Comment("//ConnectGorm Database Connection to Gorm V2")
+		f.Func().Id("ConnectGorm").Params().Params(jen.Id("*").Qual("gorm.io/gorm", "DB")).
+			Block(
+				// jen.Id("databaseConfig").Op(":=").Qual("fmt", "Sprintf").Call(
+				// 	jen.Lit("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true"),
+				// 	jen.Qual("os", "Getenv").Call(jen.Lit("DB_USER")),
+				// 	jen.Qual("os", "Getenv").Call(jen.Lit("DB_PASSWORD")),
+				// 	jen.Qual("os", "Getenv").Call(jen.Lit("DB_HOST")),
+				// 	jen.Qual("os", "Getenv").Call(jen.Lit("DB_PORT")),
+				// 	jen.Qual("os", "Getenv").Call(jen.Lit("DB_DATABASE")),
+				// ),
+
+				jen.Id("dsn").Op(":=").Qual("os", "Getenv").Call(jen.Lit("POSTGRE_URI")),
+
+				jen.Empty(),
+
+				jen.Id("db").Op(",").Err().Op(":=").Qual("gorm.io/gorm", "Open").Params(jen.Qual("gorm.io/driver/postgres", "New").Params(jen.Qual("gorm.io/driver/postgres", "Config").Values(
+					jen.DictFunc(func(d jen.Dict) {
+						d[jen.Id("DSN")] = jen.Id("dsn")
+						d[jen.Id("PreferSimpleProtocol")] = jen.True()
+					}),
+				)), jen.Qual(goModName+"/logger", "InitConfig").Call()),
+
+				jen.Empty(),
+
+				jen.If(
+					jen.Err().Op("!=").Nil(),
+				).Block(
+					jen.Qual("fmt", "Println").Call(jen.Err()),
+					jen.Panic(jen.Lit("Fail To Connect Database")),
+				),
+
+				jen.Empty(),
+
+				jen.Return(jen.Id("db")),
+			)
+	}
 
 	// END
 
