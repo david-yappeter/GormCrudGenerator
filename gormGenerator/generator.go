@@ -185,8 +185,8 @@ func GormQueryToolsGenerator(setting setting.YamlSettings) {
 			jen.If(
 				jen.Id("limit").Op("!=").Nil().Op("&&").Id("page").Op("!=").Nil().Op("&&").Id("*limit").Op(">").Lit(0).Op("&&").Id("*page").Op(">").Lit(0),
 			).Block(
-				jen.Id("offset").Op(":=").Parens(jen.Id("*page").Op("-").Lit(1)).Op("*").Id("limit"),
-				jen.Id("*query").Op("=").Id("*query").Dot("Offset").Call(jen.Id("offset")).Dot("Limit").Call(jen.Id("limit")),
+				jen.Id("offset").Op(":=").Parens(jen.Id("*page").Op("-").Lit(1)).Op("*").Id("*limit"),
+				jen.Id("*query").Op("=").Id("*query").Dot("Offset").Call(jen.Id("offset")).Dot("Limit").Call(jen.Id("*limit")),
 			),
 			f.Empty(),
 

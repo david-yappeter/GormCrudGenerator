@@ -10,6 +10,11 @@ import (
 	"github.com/david-yappeter/GormCrudGenerator/gormgenerator"
 	"github.com/david-yappeter/GormCrudGenerator/setting"
 	"gopkg.in/yaml.v3"
+
+	//External Library Dependency
+	_ "gorm.io/driver/mysql"
+	_ "gorm.io/driver/postgres"
+	_ "gorm.io/gorm"
 )
 
 func main() {
