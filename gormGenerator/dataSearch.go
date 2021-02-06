@@ -2,8 +2,11 @@ package gormgenerator
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
+
+	"github.com/david-yappeter/GormCrudGenerator/setting"
 )
 
 //GetGoModName Get Go Mod Name
@@ -28,8 +31,8 @@ func GetGoModName() string {
 }
 
 //GetStructAndAttribute Get Structs and Its Attributes
-func GetStructAndAttribute() ([]string, map[string][]string) {
-	fileHandle, _ := os.Open("./gormGenerator/model.go")
+func GetStructAndAttribute(setting setting.YamlSettings) ([]string, map[string][]string) {
+	fileHandle, _ := os.Open(fmt.Sprintf("%s/%s.go", pathRemoveLastStrip(setting.Service.From.Path), setting.Service.From.Name))
 	defer fileHandle.Close()
 	fileScanner := bufio.NewScanner(fileHandle)
 

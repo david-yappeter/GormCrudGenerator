@@ -2,3 +2,4 @@ logger
 service
 tools
 config
+gormCrud.yaml
