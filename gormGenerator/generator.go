@@ -734,11 +734,11 @@ func CrudGenerator(setting setting.YamlSettings, nameGoMod string, nameStruct st
 	f.Comment("//" + structName + "Pagination Pagination")
 	f.Func().Id(structName+"Pagination").Params(
 		jen.Id("ctx").Qual("context", "Context"),
-		jen.Id("limit").Int(),
-		jen.Id("page").Int(),
-		jen.Id("ascending").Bool(),
-		jen.Id("sortBy").String(),
-		jen.Id("filter").Index().Int(),
+		jen.Id("*limit").Int(),
+		jen.Id("*page").Int(),
+		jen.Id("*ascending").Bool(),
+		jen.Id("*sortBy").String(),
+		// jen.Id("filter").Index().Int(),
 	).Params(
 		jen.Id("[]*").Qual(goModName+"/graph/model", structName),
 		jen.Error(),
@@ -764,7 +764,7 @@ func CrudGenerator(setting setting.YamlSettings, nameGoMod string, nameStruct st
 				jen.Id("page"),
 				jen.Id("ascending"),
 				jen.Id("sortBy"),
-				jen.Id("filter"),
+				// jen.Id("filter"),
 			),
 
 			jen.Err().Op(":=").Id("query").Dot("Find").Call(jen.Id("&"+camelStructName)).Dot("Error"),
@@ -787,11 +787,10 @@ func CrudGenerator(setting setting.YamlSettings, nameGoMod string, nameStruct st
 	f.Comment("//" + structName + "TotalDataPagination  Total Data Pagination")
 	f.Func().Id(structName+"TotalDataPagination ").Params(
 		jen.Id("ctx").Qual("context", "Context"),
-		jen.Id("limit").Int(),
-		jen.Id("page").Int(),
-		jen.Id("ascending").Bool(),
-		jen.Id("sortBy").String(),
-		jen.Id("filter").Index().Int(),
+		jen.Id("*limit").Int(),
+		jen.Id("*page").Int(),
+		jen.Id("*ascending").Bool(),
+		jen.Id("*sortBy").String(),
 	).Params(
 		jen.Int(),
 		jen.Error(),
@@ -817,7 +816,6 @@ func CrudGenerator(setting setting.YamlSettings, nameGoMod string, nameStruct st
 				jen.Id("page"),
 				jen.Id("ascending"),
 				jen.Id("sortBy"),
-				jen.Id("filter"),
 			),
 
 			jen.Err().Op(":=").Id("query").Dot("Count").Call(jen.Id("&count")).Dot("Error"),
