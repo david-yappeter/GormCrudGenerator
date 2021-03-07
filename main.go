@@ -35,6 +35,7 @@ database:
         - postgre
     path: ./config
     name: databaseGorm
+    apply: true
     setting:
         path: ./logger
         name: logMode
@@ -47,6 +48,7 @@ database:
             - Warn
             - Error
         slowThreshold: 1
+        apply: true
 service:
     from:
         path: ./gormgenerator
@@ -57,9 +59,11 @@ service:
     to:
         path: ./service
         postfix: "Generated"
+    apply: true
 queryTools:
     path: ./tools
     name: dbGenerator
+    apply: true
 `
 
 			var d yaml.Node
@@ -113,20 +117,21 @@ queryTools:
 	// Get gomod name of your workspace
 	goModName := gormgenerator.GetGoModName()
 
-	gormgenerator.GormLogGenerator(settingsYaml)
-	gormgenerator.GormConnectionGenerator(settingsYaml, goModName, connectionType)
-	gormgenerator.GormQueryToolsGenerator(settingsYaml)
+	gormgenerator.GormLogGenerator(settingsYaml, settingsYaml.Database.Setting.Apply)
+	gormgenerator.GormConnectionGenerator(settingsYaml, goModName, connectionType, settingsYaml.Database.Apply)
+	gormgenerator.GormQueryToolsGenerator(settingsYaml, settingsYaml.QueryTools.Apply)
 	// gormgenerator.PaginationVariableGenerator()
 
-	listStruct, attributesList := gormgenerator.GetStructAndAttribute(settingsYaml)
+	if settingsYaml.Service.Apply {
+		listStruct, attributesList := gormgenerator.GetStructAndAttribute(settingsYaml)
 
-	for _, val := range listStruct {
+		for _, val := range listStruct {
 
-		err := gormgenerator.CrudGenerator(settingsYaml, goModName, val, attributesList)
+			err := gormgenerator.CrudGenerator(settingsYaml, goModName, val, attributesList)
 
-		if err != nil {
-			panic(err)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
-
 }

@@ -124,7 +124,11 @@ import (
 // }
 
 //GormQueryToolsGenerator Pagination Query Tools Generator
-func GormQueryToolsGenerator(setting setting.YamlSettings) {
+func GormQueryToolsGenerator(setting setting.YamlSettings, apply bool) {
+	if !apply {
+		return
+	}
+
 	err := os.Mkdir(setting.QueryTools.Path, os.ModeDir)
 
 	if err == nil {
@@ -245,7 +249,11 @@ func GormQueryToolsGenerator(setting setting.YamlSettings) {
 }
 
 //GormLogGenerator Gorm Log Setting
-func GormLogGenerator(setting setting.YamlSettings) {
+func GormLogGenerator(setting setting.YamlSettings, apply bool) {
+	if !apply {
+		return
+	}
+
 	err := os.Mkdir(setting.Database.Setting.Path, os.ModeDir)
 
 	if err == nil {
@@ -351,7 +359,10 @@ func GormLogGenerator(setting setting.YamlSettings) {
 }
 
 //GormConnectionGenerator Gorm Connection Gorm V2
-func GormConnectionGenerator(setting setting.YamlSettings, goModName string, connectionType string) {
+func GormConnectionGenerator(setting setting.YamlSettings, goModName string, connectionType string, apply bool) {
+	if !apply {
+		return
+	}
 
 	err := os.Mkdir(setting.Database.Path, os.ModeDir)
 
