@@ -8,6 +8,7 @@ database:
         - postgre
     path: ./config
     name: databaseGorm
+    apply: true
     setting:
         path: ./logger
         name: logMode
@@ -20,6 +21,7 @@ database:
             - Warn
             - Error
         slowThreshold: 1
+        apply: true
 service:
     from:
         path: ./gormgenerator
@@ -30,7 +32,9 @@ service:
     to:
         path: ./service
         postfix: "Generated"
+    apply: true
 queryTools:
     path: ./tools
     name: dbGenerator
+    apply: true
 `

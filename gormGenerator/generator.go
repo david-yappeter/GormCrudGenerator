@@ -27,7 +27,6 @@ func GormQueryToolsGenerator(setting setting.YamlSettings) {
 		jen.Id("page").Id("*").Int(),
 		jen.Id("ascending").Id("*").Bool(),
 		jen.Id("sortBy").Id("*").String(),
-		// jen.Id("filter").Index().Id("*").Int(),
 	).
 		Block(
 			jen.Id("sortBy").Op("=").Id("OrderBy").Call(jen.Id("sortBy"), jen.Id("ascending")),
