@@ -1,5 +1,12 @@
 package setting
 
+import (
+	"io/ioutil"
+	"log"
+
+	"gopkg.in/yaml.v2"
+)
+
 //YamlSettings Yaml Setting
 type YamlSettings struct {
 	Database struct {
@@ -30,4 +37,19 @@ type YamlSettings struct {
 		Path string `yaml:"path"`
 		Name string `yaml:"name"`
 	} `yaml:"queryTools"`
+}
+
+//ReadYamlConfig Read Yaml to Model
+func ReadYamlConfig() YamlSettings {
+	var settingsYaml YamlSettings
+	body, err := ioutil.ReadFile("./gormCrud.yaml")
+	if err != nil {
+		log.Println("Please Run With Arguments 'init' if you didn't have the config file")
+		log.Println("Please Check Your Yaml File, Name it 'gormCrud.yaml'")
+		panic(err)
+	}
+	if err = yaml.Unmarshal(body, &settingsYaml); err != nil {
+		panic(err)
+	}
+	return settingsYaml
 }
