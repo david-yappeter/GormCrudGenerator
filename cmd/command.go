@@ -24,11 +24,14 @@ func defaultCommand() {
 	gormgenerator.GormLogGenerator(settingsYaml)
 	gormgenerator.GormConnectionGenerator(settingsYaml, goModName)
 	gormgenerator.GormQueryToolsGenerator(settingsYaml)
-	listStruct, attributesList := gormgenerator.GetStructAndAttribute(settingsYaml)
-	for _, val := range listStruct {
-		err := gormgenerator.CrudGenerator(settingsYaml, goModName, val, attributesList)
-		if err != nil {
-			panic(err)
+
+	if settingsYaml.Service.Apply {
+		listStruct, attributesList := gormgenerator.GetStructAndAttribute(settingsYaml)
+		for _, val := range listStruct {
+			err := gormgenerator.CrudGenerator(settingsYaml, goModName, val, attributesList)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }

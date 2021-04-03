@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -33,7 +32,7 @@ func yamlInit() bool {
 		panic(err)
 	}
 
-	file, err := os.Create(fmt.Sprintf("./gormCrud.yaml"))
+	file, err := os.Create("./gormCrud.yaml")
 
 	if err != nil {
 		panic(err)
