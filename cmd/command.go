@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/david-yappeter/GormCrudGenerator/gormgenerator"
+	"github.com/david-yappeter/GormCrudGenerator/generator"
 	"github.com/david-yappeter/GormCrudGenerator/setting"
 
 	//External Library Dependency
@@ -20,15 +20,15 @@ func GenerateService(arguments []string) {
 
 func defaultCommand() {
 	var settingsYaml = setting.ReadYamlConfig()
-	goModName := gormgenerator.GetGoModName()
-	gormgenerator.GormLogGenerator(settingsYaml)
-	gormgenerator.GormConnectionGenerator(settingsYaml, goModName)
-	gormgenerator.GormQueryToolsGenerator(settingsYaml)
+	goModName := generator.GetGoModName()
+	generator.GormLogGenerator(settingsYaml)
+	generator.GormConnectionGenerator(settingsYaml, goModName)
+	generator.GormQueryToolsGenerator(settingsYaml)
 
 	if settingsYaml.Service.Apply {
-		listStruct, attributesList := gormgenerator.GetStructAndAttribute(settingsYaml)
+		listStruct, attributesList := generator.GetStructAndAttribute(settingsYaml)
 		for _, val := range listStruct {
-			err := gormgenerator.CrudGenerator(settingsYaml, goModName, val, attributesList)
+			err := generator.CrudGenerator(settingsYaml, goModName, val, attributesList)
 			if err != nil {
 				panic(err)
 			}

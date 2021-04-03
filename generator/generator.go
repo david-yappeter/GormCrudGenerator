@@ -1,4 +1,4 @@
-package gormgenerator
+package generator
 
 import (
 	"fmt"
