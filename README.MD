@@ -1,3 +1,5 @@
+[![build](https://github.com/david-yappeter/GormCrudGenerator/actions/workflows/go.yml/badge.svg)](https://github.com/david-yappeter/GormCrudGenerator/actions/workflows/go.yml)
+
 # Graphql + GORM SQL CRUD Generator
 ```
 $ go run github.com/david-yappeter/GormCrudGenerator init
